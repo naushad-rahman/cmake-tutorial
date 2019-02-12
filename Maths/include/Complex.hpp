@@ -17,7 +17,9 @@ namespace dvsim
             public:
                 Complex(/* args */):real(0.0),Imaginary(0.0){};
                  Complex(Real real , Real Imaginary):real(real),Imaginary(Imaginary){};
+                 Complex(const Complex &complex);
                 ~Complex();
+                
 
                 Real norm(const Complex);
                 void display();

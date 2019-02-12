@@ -19,3 +19,9 @@ void Complex::display()
 {
     std::cout <<this->real<<"+"<<this->Imaginary<<"i"<<std::endl;
 }
+
+Complex::Complex(const Complex &complex)
+{
+    real=complex.real;
+    Imaginary =complex.Imaginary;
+}
