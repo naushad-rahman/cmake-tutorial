@@ -52,6 +52,22 @@ set( SOURCE
 # Create targets
 add_library(dvsimMath  SHARED ${SOURCE})
 
+
+
+if(WITH_CLANG_TIDY)
+    add_clang_tidy_target(${name} "${ARGN}")
+    set_property(GLOBAL APPEND PROPERTY CLANG_TIDY_TARGETS  "clang_tidy_${name}")
+    set_property(GLOBAL APPEND PROPERTY CLANG_TIDY_FIX_TARGETS  "clang_tidy_fix_${name}")
+endif()
+
+
+if(WITH_CLANG_TIDY)
+  get_property(CLANG_TIDY_TARGETS GLOBAL PROPERTY CLANG_TIDY_TARGETS)
+  get_property(CLANG_TIDY_FIX_TARGETS GLOBAL PROPERTY CLANG_TIDY_FIX_TARGETS)
+  add_custom_target(clang-tidy DEPENDS ${CLANG_TIDY_TARGETS} VERBATIM)
+  add_custom_target(clang-tidy-fix DEPENDS ${CLANG_TIDY_FIX_TARGETS} VERBATIM)
+endif()
+
 ####
 # Properties of targets
 
@@ -123,12 +139,14 @@ write_basic_package_version_file(
     "${version_config}" COMPATIBILITY SameMajorVersion
 )
 
+
+message("PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}")
 # Configure '<PROJECT-NAME>Config.cmake'
 # Use variables:
 #   * TARGETS_EXPORT_NAME
 #   * PROJECT_NAME
 configure_package_config_file(
-    "cmake/Config.cmake.in"
+    "../cmake/Config.cmake.in"
     "${project_config}"
     INSTALL_DESTINATION "${config_install_dir}"
 )
