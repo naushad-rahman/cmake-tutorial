@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.0)
 project(dvSim-Projects)
 
 enable_testing()
+# path to find own modules
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+option(WITH_CLANG_TIDY_NEW "Compile with support for clang-tidy" OFF)
+
+if (WITH_CLANG_TIDY_NEW)
+include(clang-tidy REQUIRED)
+message("WITH_CLANG_TIDY_NEW = ${WITH_CLANG_TIDY_NEW}")
+endif()
+
 
 option(WITH_CLANG_TIDY "Compile with support for clang-tidy" OFF)
 if(WITH_CLANG_TIDY)

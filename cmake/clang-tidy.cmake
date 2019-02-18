@@ -1,4 +1,4 @@
-find_program(CLANG_TIDY clang-tidy)
+find_program(CLANG_TIDY clang-tidy-7)
 if(NOT CLANG_TIDY)
 	message(STATUS "Did not find clang-tidy, target tidy is disabled.")
 else()
@@ -53,7 +53,7 @@ else()
 	message(STATUS "Found clang-format, use \"make format\" to run it.")
 	
 	add_custom_target(format
-		COMMAND find ./ -iname "*.h" -o -iname "*.tpp" -o -iname "*.cpp" | xargs ${CLANG_FORMAT} -style=file -i -verbose
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/
+		COMMAND find ./ -iname "*.hpp" -o -iname "*.tpp" -o -iname "*.cpp" | xargs ${CLANG_FORMAT} -style=file -i -verbose
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Maths/
 	)
 endif()
