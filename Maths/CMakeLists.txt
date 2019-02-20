@@ -1,19 +1,15 @@
 
 # Set minimum version of CMake.
-cmake_minimum_required(VERSION 3.9) # GENERATOR_IS_MULTI_CONFIG
+cmake_minimum_required(VERSION 3.10) # GENERATOR_IS_MULTI_CONFIG
 
-####
-# Set variables:
-#   * PROJECT_NAME
-#   * PROJECT_VERSION
 project(dvSim-Math VERSION 1.2.3)
 
 
 if(MSVC)
   set(pdb_output_dir "${CMAKE_CURRENT_BINARY_DIR}/pdb-files")
 
-  set(CMAKE_PDB_OUTPUT_DIRECTORY "${pdb_output_dir}")
-  set(CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY "${pdb_output_dir}")
+  set( "${pdb_output_dir}")
+  set(CMAKE_COMPILE_PDB_OUTCMAKE_PDB_OUTPUT_DIRECTORYPUT_DIRECTORY "${pdb_output_dir}")
 
   get_cmake_property(is_multi GENERATOR_IS_MULTI_CONFIG)
   if(is_multi)
@@ -40,51 +36,30 @@ if(MSVC)
 endif()
 
 
-
+################################
+# Adding Include File Path 
+################################
 file (GLOB HEADER_ALL "include/*.hpp")
 file (GLOB HEADER_DATATYPESDEF "include/dataTypesdef/*.hpp")
-####
+
+
+################################
+# Source Path 
+################################
 set( SOURCE 
     ${HEADER_ALL}
     ${HEADER_DATATYPESDEF}
     src/Complex.cpp
    )
 # Create targets
-add_library(dvsimMath  SHARED ${SOURCE})
+add_library(dvsimMath SHARED ${SOURCE})
 
 
-
-if(WITH_CLANG_TIDY)
-    add_clang_tidy_target(${name} "${ARGN}")
-    set_property(GLOBAL APPEND PROPERTY CLANG_TIDY_TARGETS  "clang_tidy_${name}")
-    set_property(GLOBAL APPEND PROPERTY CLANG_TIDY_FIX_TARGETS  "clang_tidy_fix_${name}")
-endif()
-
-
-if(WITH_CLANG_TIDY)
-  get_property(CLANG_TIDY_TARGETS GLOBAL PROPERTY CLANG_TIDY_TARGETS)
-  get_property(CLANG_TIDY_FIX_TARGETS GLOBAL PROPERTY CLANG_TIDY_FIX_TARGETS)
-  add_custom_target(clang-tidy DEPENDS ${CLANG_TIDY_TARGETS} VERBATIM)
-  add_custom_target(clang-tidy-fix DEPENDS ${CLANG_TIDY_FIX_TARGETS} VERBATIM)
-endif()
-
-####
 # Properties of targets
-
-# Add definitions for targets
-# Values:
-#   * Debug: -DFOO_BAR_DEBUG=1
-#   * Release: -DFOO_BAR_DEBUG=0
-#   * other: -DFOO_BAR_DEBUG=0
 target_compile_definitions(dvsimMath PUBLIC "DVSIM_MATH_DEBUG=$<CONFIG:Debug>")
 
 
 # Generate:
-#   * ${CMAKE_CURRENT_BINARY_DIR}/generated_headers/foo/BAR_EXPORT.h with BAR_EXPORT
-#   * ${CMAKE_CURRENT_BINARY_DIR}/generated_headers/foo/BAZ_EXPORT.h with BAZ_EXPORT
-# Renaming because:
-# * We need prefix 'foo' to fit OSX/iOS frameworks layout
-# * File name match name of the macro
 set(generated_headers "${CMAKE_CURRENT_BINARY_DIR}/generated_headers")
 set(dvSimMath_export "${generated_headers}/dvsimMath/DVSIM_MATH_EXPORT.h")
 
@@ -93,34 +68,26 @@ generate_export_header(dvsimMath EXPORT_FILE_NAME ${dvSimMath_export})
 
 
 # Global includes. Used by all targets
-# Note:
-#   * header location in project: Foo/Source/foo/Bar.hpp
-#   * header can be included by C++ code `#include <foo/Bar.hpp>`
-#   * header location in project: ${CMAKE_CURRENT_BINARY_DIR}/generated_headers/foo/BAR_EXPORT.h
-#   * header can be included by: `#include <BAR_EXPORT.h>`
 target_include_directories(
     dvsimMath PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Source>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>"
     "$<BUILD_INTERFACE:${generated_headers}>"
 )
 
 # Link required library
 # target_link_libraries(bar PUBLIC baz)
 
-# Installation (https://github.com/forexample/package-example) {
 
-# Introduce variables:
-# * CMAKE_INSTALL_LIBDIR
-# * CMAKE_INSTALL_BINDIR
-# * CMAKE_INSTALL_INCLUDEDIR
 include(GNUInstallDirs)
 
+################################
+# Installing Path 
+################################
 # Layout. This works for all platforms:
 #   * <prefix>/lib*/cmake/<PROJECT-NAME>
 #   * <prefix>/lib*/
 #   * <prefix>/include/
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 # Configuration
@@ -209,8 +176,12 @@ install(
 
 # }
 
+
+################################
+# Clang tidy Addition 
+################################
 file(GLOB_RECURSE carl_lib_sources "*.cpp")
-if (WITH_CLANG_TIDY_NEW)
+if (WITH_CLANG_TIDY)
 	add_custom_target(tidy
 		COMMAND ${CLANG_TIDY} -p ../../build/compile_commands.json ${CLANG_TIDY_CHECKS} -header-filter='.*' ${carl_lib_sources}
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Maths/
