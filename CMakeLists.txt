@@ -21,17 +21,25 @@ set(PACKAGE_MAINTAINER "Dvsim Backedn Team")
 
 message("CMAKE_CXX_COMPILER    = ${CMAKE_CXX_COMPILER}")
 message("CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-message("CMAKE_COMPILER_IS_GNUCXX  =${CMAKE_COMPILER_IS_GNUCXX}")
-
 
 
 # path to find own modules
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# # # # # # # # # # # # # # # # # # # # # #
+# CMake Options
+# # # # # # # # # # # # # # # # # # # # # #
+
+option( DEVELOPER "Compile with extra warnings" OFF )
+option( ALLWARNINGS "Compile with even more warnings" OFF )
+
+set(CLANG_SANITIZER "none" CACHE STRING "Compile with the respective sanitizer")
+set_property(CACHE CLANG_SANITIZER PROPERTY STRINGS none address memory thread)
+
+
 ##########################################
 # CLANG TIDY 
 ##########################################
-
 option(WITH_CLANG_TIDY "Compile with support for clang-tidy" OFF)
 if (WITH_CLANG_TIDY)
 include(clang-tidy REQUIRED)
@@ -43,6 +51,7 @@ endif()
 ############################### compiler warnings ##############################
 ################################################################################
 include(compiler-options REQUIRED)
+
 #######################################################################
 ############################# -fPIC ###################################
 #######################################################################
@@ -79,10 +88,25 @@ add_subdirectory(misc)
 #####################################################
 option(WITH_DOC "Enable documentation generation" OFF)
 if(WITH_DOC)
-  set(DOXYFILE_LATEX "NO")
-  set(DOXYFILE_IN_DIR ${PROJECT_SOURCE_DIR}/docs/api)
-  set(DOXYFILE_OUTPUT_DIR  ${PROJECT_SOURCE_DIR}/docs/api)
-  set(DOXYFILE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/Maths)
-  include(UseDoxygen OPTIONAL)
-  add_custom_target(tutor)
+
+# check if Doxygen is installed
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    # set input and output files
+    set(DOXYGEN_IN ${PROJECT_SOURCE_DIR}/doxygen-conf/doxygen.conf.in)
+    set(DOXYGEN_OUT ${PROJECT_SOURCE_DIR}/docs/output/Doxyfile)
+
+    # request to configure the file
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+    message("Doxygen build started")
+
+    # note the option ALL which allows to build the docs together with the application
+    add_custom_target( doc_doxygen ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Maths
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM )
+else (DOXYGEN_FOUND)
+  message("Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)
 endif()

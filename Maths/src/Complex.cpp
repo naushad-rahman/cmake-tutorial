@@ -1,3 +1,9 @@
+/**
+ * @file EliminationSet.h
+ * @ingroup cad
+ * @author Gereon Kremer <gereon.kremer@cs.rwth-aachen.de>
+ */
+
 #include <Complex.hpp>
 #include <dataTypesdef/dataTypedef.hpp>
 #include <iostream>
